@@ -4,6 +4,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils import executor
 from aiogram.dispatcher.filters import Command
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from bson import ObjectId
 from pymongo import MongoClient
 from logging import basicConfig, INFO
 
@@ -111,17 +113,92 @@ async def process_get_receipt(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-# Функция обработки команды /all
+# # Функция обработки команды /all
+# @dp.message_handler(commands='all')
+# async def cmd_all(message: types.Message):
+#     # Ответ пользователю
+#     await message.reply(f"Понял, вывожу все рецепты, которые знаю😊")
+#     response = ""
+#     # Вывод всех рецептов
+#     for receipt in collection.find():
+#         response += f"📖{receipt['title'].upper()}📖\n\n"
+#     # Ответ пользователю
+#     await message.answer(response)
+
+
+# @dp.message_handler(commands='b1')
+# async def button1(message: types.Message):
+#     markup = InlineKeyboardMarkup()
+#     button = InlineKeyboardButton(text='pip', callback_data='butt_id')
+#     markup.add(button)
+
+#     await bot.send_message(message.chat.id, 'message text', reply_markup=markup)
+
+# @dp.callback_query_handler(lambda c: c.data == 'butt_id')
+# async def to_query(call: types.callback_query):
+#     await bot.answer_callback_query(call.id)
+#     await bot.send_message(call.message.chat.id, 'button pressed')
+
+
+# @dp.message_handler(commands='b1')
+# async def button1(message: types.Message):
+#     markup = InlineKeyboardMarkup()
+#     for receipt in collection.find():
+#         button = InlineKeyboardButton(text=f"📖{receipt['title'].upper()}📖", callback_data='butt_id')
+#         markup.add(button)
+
+#     await bot.send_message(message.chat.id, 'Понял, вывожу все рецепты, которые знаю😊', reply_markup=markup)
+
+# @dp.callback_query_handler(lambda c: c.data == 'butt_id')
+# async def to_query(call: types.callback_query):
+#     await bot.answer_callback_query(call.id)
+#     await bot.send_message(call.message.chat.id, 'button pressed')
+
+
+
+
+
+
+
+
+
+
+
+
+
+# from aiogram.utils.callback_data import CallbackData
+# from bson.objectid import ObjectId
+
+# button_callback = CallbackData('receipt', 'receipt_id')
+
+# @dp.message_handler(commands='b1')
+# async def button1(message: types.Message):
+    
+#     markup = InlineKeyboardMarkup()
+#     for receipt in collection.find():
+#         markup.add(InlineKeyboardButton(text=f"📖{receipt['title'].upper()}📖", callback_data=str(receipt['_id'])))
+
+#     await bot.send_message(message.chat.id, 'Понял, вывожу все рецепты, которые знаю😊', reply_markup=markup)
+
+
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
 @dp.message_handler(commands='all')
-async def cmd_all(message: types.Message):
-    # Ответ пользователю
-    await message.reply(f"Понял, вывожу все рецепты, которые знаю😊")
-    response = ""
-    # Вывод всех рецептов
+async def start_handler(message: types.Message):
+    keyboard = InlineKeyboardMarkup()
+    
     for receipt in collection.find():
-        response += f"📖{receipt['title'].upper()}📖\n\n"
-    # Ответ пользователю
-    await message.answer(response)
+        button = InlineKeyboardButton(text=f"📖{receipt['title'].upper()}📖", callback_data=f"recipe_{receipt['_id']}")
+        keyboard.add(button)
+    
+    await message.answer("Понял, вывожу все рецепты, которые знаю😊", reply_markup=keyboard)
+
+@dp.callback_query_handler()
+async def recipe_handler(call: types.callback_query):
+    recipe_id = call.data.split("_")[1]
+    recipe = db.receipts.find_one({"_id": ObjectId(recipe_id)})
+    await bot.send_message(call.message.chat.id, f'📖{recipe["title"].upper()}📖\n\n{recipe["text"]}')
+
 
 
 if __name__ == '__main__':
