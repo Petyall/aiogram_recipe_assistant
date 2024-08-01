@@ -11,3 +11,7 @@ class AddRecipeStates(StatesGroup):
 class GetRecipeStates(StatesGroup):
     SELECT_CATEGORY = State()
     SELECT_RECIPE = State()
+    EDIT_RECIPE = State()
+    SELECT_FIELD = State()
+    CONFIRM_EDIT = State()
+    CONFIRM_DELETION = State()
