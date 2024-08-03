@@ -17,17 +17,12 @@ TOKEN = settings.API_TOKEN
 dp = Dispatcher()
 dp.message.middleware(WhitelistMiddleware())
 
+
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {html.bold(message.from_user.full_name)}!")
-
-
-# @dp.message()
-# async def echo_handler(message: Message) -> None:
-#     try:
-#         await message.send_copy(chat_id=message.chat.id)
-#     except TypeError:
-#         await message.answer("Nice try!")
+    await message.answer(
+        f"Привет, {html.bold(message.from_user.full_name)}!\n\nЧтобы пользоваться функциями, жми кнопку menu на экране. Там перечислен список основных команд, но навсякий случай расскажу тебе их здесь!\n/add_recipe - Добавить рецепт 🦑\n/get_recipe - Получение рецепта 🔎"
+    )
 
 
 async def main() -> None:
