@@ -82,3 +82,18 @@ def get_recipe_confirm_deletion_keyboard() -> InlineKeyboardMarkup:
     ]
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return(keyboard)
+
+
+def add_user_cancel_keyboard()  -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(text="Отменить добавление", callback_data="cancel_adding_user")],
+    ]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return(keyboard)
+
+def add_category_cancel_keyboard()  -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(text="Отменить добавление", callback_data="cancel_adding_category")],
+    ]
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return(keyboard)

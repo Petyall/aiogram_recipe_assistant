@@ -15,3 +15,11 @@ class GetRecipeStates(StatesGroup):
     SELECT_FIELD = State()
     CONFIRM_EDIT = State()
     CONFIRM_DELETION = State()
+
+
+class AddUserStates(StatesGroup):
+    GET_USERNAME = State()
+
+
+class AddCategoryStates(StatesGroup):
+    GET_ROLE_NAME = State()

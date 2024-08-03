@@ -2,9 +2,10 @@ from aiogram import html, types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 
-from app.keyboards import add_recipe_cancel_keyboard, add_recipe_get_recipe_categories_keyboard, get_recipe_cancel_keyboard, get_recipe_confirm_deletion_keyboard, get_recipe_confirm_edit_keyboard, get_recipe_edit_recipe_keyboard, get_recipe_get_recipe_categories_keyboard, get_recipe_get_recipes_keyboard
-from app.states import AddRecipeStates, GetRecipeStates
+from app.keyboards import add_category_cancel_keyboard, add_recipe_cancel_keyboard, add_recipe_get_recipe_categories_keyboard, add_user_cancel_keyboard, get_recipe_cancel_keyboard, get_recipe_confirm_deletion_keyboard, get_recipe_confirm_edit_keyboard, get_recipe_edit_recipe_keyboard, get_recipe_get_recipe_categories_keyboard, get_recipe_get_recipes_keyboard
+from app.states import AddCategoryStates, AddRecipeStates, AddUserStates, GetRecipeStates
 from app.requests import RecipeRequests, CategoryRequests, UserRequests
+from app.config import settings
 
 
 recipes_router = Router()
@@ -362,3 +363,55 @@ async def get_recipe_process_confirm_delete(callback_query: types.CallbackQuery,
         text=f"{html.bold('Рецепт успешно удален!')}\n\nВыберите {html.bold('категорию')} рецепта", 
         reply_markup=keyboard
     )
+
+
+
+
+
+@recipes_router.message(Command('add_user'))
+async def cmd_add_user(message: types.Message, state: FSMContext):
+    if message.from_user.id != settings.ADMIN_ID:
+        return
+    
+    await state.set_state(AddUserStates.GET_USERNAME)
+    await message.answer(text="Отправь username пользователя", reply_markup=add_user_cancel_keyboard())
+
+
+@recipes_router.callback_query(lambda c: c.data == 'cancel_adding_user')
+async def get_recipe_process_cancel_adding_user(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback_query.bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+
+
+@recipes_router.message(AddUserStates.GET_USERNAME)
+async def get_username(message: types.Message, state: FSMContext):
+    username = message.text
+    await UserRequests.add(username=username)
+    await state.clear()
+    await message.answer(text=f"Пользователь {username} успешно добавлен!")
+
+
+
+
+
+@recipes_router.message(Command('add_category'))
+async def cmd_add_category(message: types.Message, state: FSMContext):
+    if message.from_user.id != settings.ADMIN_ID:
+        return
+    
+    await state.set_state(AddCategoryStates.GET_ROLE_NAME)
+    await message.answer(text="Отправь название категории", reply_markup=add_category_cancel_keyboard())
+
+
+@recipes_router.callback_query(lambda c: c.data == 'cancel_adding_category')
+async def get_recipe_process_cancel_adding_user(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback_query.bot.delete_message(chat_id=callback_query.from_user.id, message_id=callback_query.message.message_id)
+
+
+@recipes_router.message(AddCategoryStates.GET_ROLE_NAME)
+async def get_name(message: types.Message, state: FSMContext):
+    name = message.text
+    await CategoryRequests.add(name=name)
+    await state.clear()
+    await message.answer(text=f"Категория {name} успешно добавлена!")
