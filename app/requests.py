@@ -84,3 +84,11 @@ class CategoryRequests(BaseRequests):
 
 class UserRequests(BaseRequests):
     model = Users
+
+    @classmethod
+    async def update(cls, username, **data):
+        """Обновление объектов"""
+        async with async_session_maker() as session:
+            query = update(cls.model).where(cls.model.username == username).values(**data)
+            await session.execute(query)
+            await session.commit()

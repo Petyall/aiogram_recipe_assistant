@@ -88,11 +88,11 @@ async def add_recipe_process_get_steps(message: types.Message, state: FSMContext
     recipe_category = data['recipe_category']
     recipe_steps = message.text
 
-    user_id = message.from_user.id
-    user = await UserRequests.find_one_or_none(id=user_id)
-    if not user:
-        await UserRequests.add(id=user_id, username=message.from_user.username)
-        user = await UserRequests.find_one_or_none(id=user_id)
+    username = message.from_user.username
+    user = await UserRequests.find_one_or_none(username=username)
+    if user:
+        await UserRequests.update(username=username, id=message.from_user.id)
+        # user = await UserRequests.find_one_or_none(id=message.from_user.id)
     recipe_created_by = user.id
 
     await RecipeRequests.add(
@@ -155,7 +155,6 @@ async def get_recipe_process_select_recipe(callback_query: types.CallbackQuery, 
     recipe_created_by = await UserRequests.find_one_or_none(id=selected_recipe.created_by_id)
 
     is_author = selected_recipe.created_by_id == callback_query.from_user.id
-
     keyboard = get_recipe_cancel_keyboard(is_author)
     await callback_query.bot.edit_message_text(
         chat_id=callback_query.from_user.id, 

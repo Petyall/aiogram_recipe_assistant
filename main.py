@@ -10,10 +10,12 @@ from aiogram.types import Message
 
 from app.config import settings
 from app.handlers import recipes_router
+from app.middlewares import WhitelistMiddleware
 
 TOKEN = settings.API_TOKEN
 
 dp = Dispatcher()
+dp.message.middleware(WhitelistMiddleware())
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
